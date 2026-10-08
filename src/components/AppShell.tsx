@@ -39,7 +39,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="storage-track"><span /></div>
           <p>24% used</p>
         </div>
-        <button className="profile" type="button" onClick={logout}>
+        <button className="profile" type="button" onClick={() => void logout()}>
           <span className="avatar">{initials || 'SS'}</span>
           <span>
             <strong>{session?.user.name}</strong>

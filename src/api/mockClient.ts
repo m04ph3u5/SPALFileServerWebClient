@@ -131,6 +131,15 @@ export class MockFileShareClient implements FileShareClient {
     }
   }
 
+  async signUp(email: string, password: string): Promise<void> {
+    await delay()
+    if (!email.trim() || !password.trim()) throw new Error('Enter your email and password.')
+  }
+
+  async logout(): Promise<void> {
+    await delay(40)
+  }
+
   async listFolder(parentId: string | null): Promise<FolderListing> {
     await delay()
     const folder = parentId ? this.getItem(parentId) : null

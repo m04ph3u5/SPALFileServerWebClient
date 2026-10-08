@@ -1,15 +1,22 @@
+import { HttpFileShareClient } from './httpClient'
 import { MockFileShareClient } from './mockClient'
 import type { FileShareClient } from './types'
 
-/**
- * Adapter boundary for the backend integration.
- *
- * VITE_API_BASE_URL is intentionally reserved for the future HTTP adapter.
- * The backend repository is not accessible in this workspace, so selecting a
- * made-up REST contract here would make that integration harder, not easier.
- */
 export const apiBaseUrl = import.meta.env.VITE_API_BASE_URL as string | undefined
+export const rootFolderId = import.meta.env.VITE_ROOT_FOLDER_ID ?? '1'
 
 export function createFileShareClient(): FileShareClient {
-  return new MockFileShareClient()
+  if (shouldUseMockApi()) return new MockFileShareClient()
+
+  return new HttpFileShareClient({
+    baseUrl: apiBaseUrl ?? '',
+    rootFolderId,
+  })
+}
+
+function shouldUseMockApi() {
+  const flag = import.meta.env.VITE_USE_MOCK_API
+  if (flag === 'true') return true
+  if (flag === 'false') return false
+  return import.meta.env.MODE === 'test'
 }

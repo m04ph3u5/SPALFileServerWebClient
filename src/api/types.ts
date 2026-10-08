@@ -47,6 +47,8 @@ export interface SharedItem {
 
 export interface FileShareClient {
   login(email: string, password: string): Promise<Session>
+  signUp(email: string, password: string): Promise<void>
+  logout(): Promise<void>
   listFolder(parentId: string | null): Promise<FolderListing>
   upload(parentId: string | null, file: File): Promise<FileItem>
   download(fileId: string): Promise<DownloadPayload>

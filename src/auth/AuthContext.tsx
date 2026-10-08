@@ -14,7 +14,8 @@ const SESSION_KEY = 'syncspace.session.v1'
 interface AuthContextValue {
   session: Session | null
   login: (email: string, password: string) => Promise<void>
-  logout: () => void
+  signUp: (email: string, password: string) => Promise<void>
+  logout: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -35,18 +36,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(readSession)
 
   const value = useMemo<AuthContextValue>(
-    () => ({
-      session,
-      login: async (email, password) => {
-        const nextSession = await api.login(email, password)
+    () => {
+      const persistSession = (nextSession: Session) => {
         localStorage.setItem(SESSION_KEY, JSON.stringify(nextSession))
         setSession(nextSession)
-      },
-      logout: () => {
-        localStorage.removeItem(SESSION_KEY)
-        setSession(null)
-      },
-    }),
+      }
+
+      return {
+        session,
+        login: async (email, password) => {
+          persistSession(await api.login(email, password))
+        },
+        signUp: async (email, password) => {
+          await api.signUp(email, password)
+          persistSession(await api.login(email, password))
+        },
+        logout: async () => {
+          try {
+            await api.logout()
+          } catch {
+            // Local sign-out still proceeds if the server session is already gone.
+          }
+          localStorage.removeItem(SESSION_KEY)
+          setSession(null)
+        },
+      }
+    },
     [api, session],
   )
 

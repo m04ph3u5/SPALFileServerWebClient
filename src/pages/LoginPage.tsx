@@ -5,7 +5,7 @@ import { useAuth } from '../auth/AuthContext'
 import { Icon } from '../components/Icon'
 
 export function LoginPage() {
-  const { session, login } = useAuth()
+  const { session, login, signUp } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const [email, setEmail] = useState('alex@syncspace.test')
@@ -15,12 +15,12 @@ export function LoginPage() {
 
   if (session) return <Navigate to="/files" replace />
 
-  const submit = async (event: FormEvent) => {
-    event.preventDefault()
+  const finish = async (action: 'login' | 'signUp') => {
     setBusy(true)
     setError(null)
     try {
-      await login(email, password)
+      if (action === 'signUp') await signUp(email, password)
+      else await login(email, password)
       const target = (location.state as { from?: string } | null)?.from ?? '/files'
       navigate(target, { replace: true })
     } catch (caught) {
@@ -28,6 +28,11 @@ export function LoginPage() {
     } finally {
       setBusy(false)
     }
+  }
+
+  const submit = async (event: FormEvent) => {
+    event.preventDefault()
+    await finish('login')
   }
 
   return (
@@ -50,7 +55,7 @@ export function LoginPage() {
           <span className="mobile-brand"><Brand /></span>
           <p className="eyebrow">WELCOME BACK</p>
           <h2>Sign in to SyncSpace</h2>
-          <p>Use any email and password to explore the prototype.</p>
+          <p>Sign in with your account, or create one if this is your first visit.</p>
           <label>
             Email address
             <input
@@ -72,10 +77,20 @@ export function LoginPage() {
             />
           </label>
           {error && <p className="error-message" role="alert">{error}</p>}
-          <button className="primary-button login-submit" disabled={busy} type="submit">
-            {busy ? 'Signing in…' : 'Sign in'} <Icon name="arrow" size={18} />
-          </button>
-          <small>Your session is stored only in this browser.</small>
+          <div className="login-actions">
+            <button className="primary-button login-submit" disabled={busy} type="submit">
+              {busy ? 'Signing in…' : 'Sign in'} <Icon name="arrow" size={18} />
+            </button>
+            <button
+              className="secondary-button"
+              disabled={busy}
+              type="button"
+              onClick={() => void finish('signUp')}
+            >
+              {busy ? 'Working…' : 'Create account'}
+            </button>
+          </div>
+          <small>The file server keeps your session in a cookie.</small>
         </form>
       </section>
     </main>

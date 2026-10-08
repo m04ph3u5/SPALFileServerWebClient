@@ -18,5 +18,6 @@ function shouldUseMockApi() {
   const flag = import.meta.env.VITE_USE_MOCK_API
   if (flag === 'true') return true
   if (flag === 'false') return false
-  return import.meta.env.MODE === 'test'
+  // Local development has no file server unless one is opted into.
+  return import.meta.env.MODE !== 'production'
 }

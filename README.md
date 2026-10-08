@@ -10,8 +10,9 @@ npm install
 npm run dev
 ```
 
-Sign in with any non-empty email and password. The mock file database and
-session are persisted in the browser's local storage.
+Sign in with any non-empty email and password. `npm run dev` uses the
+in-browser mock client, so nothing needs to be listening on port 8080. The
+mock file database and session are persisted in the browser's local storage.
 
 ## Commands
 
@@ -23,9 +24,17 @@ session are persisted in the browser's local storage.
 ## Backend integration
 
 UI components depend on the typed `FileShareClient` contract in
-`src/api/types.ts`. `npm run dev` uses `HttpFileShareClient` and proxies
-`/login`, `/signUp`, `/logout`, and `/entity` to the Java server at
-`http://127.0.0.1:8080`. Tests use `MockFileShareClient`.
+`src/api/types.ts`. `npm run dev` and `npm test` use `MockFileShareClient`.
+
+To talk to the Java file server instead, start it on `http://127.0.0.1:8080`
+and run:
+
+```bash
+VITE_USE_MOCK_API=false npm run dev
+```
+
+The dev server then uses `HttpFileShareClient` and proxies `/login`,
+`/signUp`, `/logout`, and `/entity` to that server.
 
 The HTTP adapter maps the UI methods onto the existing server routes:
 
@@ -40,4 +49,4 @@ Environment:
 
 - `VITE_ROOT_FOLDER_ID` — folder id used for “My files” (default `1`)
 - `VITE_API_BASE_URL` — API origin; leave unset in development so the Vite proxy is used
-- `VITE_USE_MOCK_API=true` — force the in-browser mock client
+- `VITE_USE_MOCK_API=false` — call the Java server instead of the in-browser mock

@@ -1,0 +1,10 @@
+node_modules
+.gitconfig
+dist
+.env
+.env.local
+coverage
+*.log
+.DS_Store
+agent-tools
+package-lock.json
